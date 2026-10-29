@@ -133,6 +133,11 @@ enabled in a test TV library. It supports series search, series metadata,
 poster, and available source episode metadata. It does not invent absent
 episodes. The Plex-compatible API remains independent of these plugins.
 
+Plugin prereleases are available from GitHub Releases. An automated check
+publishes a new prerelease only when at least 14 days have elapsed since the
+previous automated release and the main branch has new commits. A manual
+release can be triggered earlier when the main branch has changed.
+
 The plugin uses the backend's `/v1/search` and `/v1/metadata/{key}` JSON APIs;
 these endpoints are unauthenticated and intended only for a trusted network.
 Plex integration is provided by this project's existing custom metadata
