@@ -66,7 +66,7 @@ jobs:
           dotnet build plugins/jellyfin/ShortDrama.csproj -c Release -o artifacts/jellyfin -p:Version=${{ steps.check.outputs.version }}
           dotnet build plugins/emby/ShortDrama.csproj -c Release -o artifacts/emby -p:Version=${{ steps.check.outputs.version }}
           for platform in jellyfin emby; do
-            cp LICENSE shared/emby-jellyfin/NOTICE "artifacts/$platform/"
+            cp LICENSE plugins/shared/NOTICE "artifacts/$platform/"
             (cd "artifacts/$platform" && zip "../short-drama-$platform.zip" ShortDrama.dll LICENSE NOTICE)
           done
           mkdir -p artifacts/plex

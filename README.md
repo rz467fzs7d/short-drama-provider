@@ -114,7 +114,7 @@ Protocol reference: https://github.com/plexinc/tmdb-example-provider
 ## Jellyfin and Emby plugin source
 
 Platform adapters live in `plugins/plex`, `plugins/emby`, and `plugins/jellyfin`.
-Emby and Jellyfin share code in `shared/emby-jellyfin`. Build their binaries:
+Shared plugin code lives in `plugins/shared`. Build the platform binaries:
 
 ```sh
 dotnet build plugins/jellyfin/ShortDrama.csproj -c Release -o artifacts/jellyfin
