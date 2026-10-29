@@ -16,18 +16,14 @@ database edits, or third-party source patches.
 ## Run
 
 ```sh
-mkdir -p data
-chown 1026:100 data
-chmod 750 data
-docker compose build
-docker image inspect homelab/short-drama-provider:0.1.0 --format '{{json .Config.Healthcheck}}'
-docker compose up -d --no-build
+docker compose up -d
 ```
 
-Compose uses bridge networking, a read-only root filesystem, UID 1026/GID100,
-256 MiB memory limit, and one writable state mount. There is no active
-healthcheck. Application concurrency is limited to 12 requests. NAS kernels
-that do not support PID limits do not require unsupported cgroup settings.
+Compose uses bridge networking, a read-only root filesystem, a non-root user,
+a 256 MiB memory limit, and a Docker-managed volume for writable state. There
+is no active healthcheck. Application concurrency is limited to 12 requests.
+For a host bind mount, ensure its directory is writable by the configured
+container user, or override the Compose `user` to match the directory owner.
 
 ## Plex registration
 

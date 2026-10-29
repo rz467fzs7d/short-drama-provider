@@ -1,14 +1,12 @@
 services:
   short-drama-provider:
-    build: .
-    image: homelab/short-drama-provider:0.1.0
-    container_name: short-drama-provider
+    image: ghcr.io/rz467fzs7d/short-drama-provider:latest
     network_mode: bridge
     restart: unless-stopped
     ports:
       - "13230:3000"
     volumes:
-      - ./data:/data
+      - short-drama-data:/data
     mem_limit: 256m
     security_opt:
       - no-new-privileges:true
@@ -20,3 +18,6 @@ services:
       options:
         max-size: "5m"
         max-file: "2"
+
+volumes:
+  short-drama-data:
