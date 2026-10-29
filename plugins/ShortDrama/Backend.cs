@@ -26,7 +26,12 @@ public sealed class DramaEpisode
 public sealed class SearchResponse
 {
     [JsonPropertyName("items")] public Drama[] Items { get; set; } = Array.Empty<Drama>();
-    [JsonPropertyName("source_errors")] public object[] Errors { get; set; } = Array.Empty<object>();
+    [JsonPropertyName("source_errors")] public SearchError[] Errors { get; set; } = Array.Empty<SearchError>();
+}
+public sealed class SearchError
+{
+    [JsonPropertyName("source")] public string Source { get; set; } = "";
+    [JsonPropertyName("stage")] public string Stage { get; set; } = "";
 }
 public sealed class DetailResponse
 {

@@ -38,7 +38,9 @@ public sealed class SeriesProvider : IRemoteMetadataProvider<Series, SeriesInfo>
         {
             if (string.IsNullOrWhiteSpace(info.Name)) return new MetadataResult<Series>();
             var results = await Backend.Search(info.Name, info.Year, ct);
-            if (results.Errors.Length > 0 || results.Items.Length == 0 || results.Items[0].Score < 80 ||
+            if (results.Items.Length == 0 || results.Items[0].Score < 80 ||
+                results.Errors.Any(e => e.Stage == "search" &&
+                    (e.Source == results.Items[0].Source || e.Source == "douban")) ||
                 (results.Items.Length > 1 && results.Items[0].Score - results.Items[1].Score < 10))
                 return new MetadataResult<Series>();
             key = results.Items[0].Key;
