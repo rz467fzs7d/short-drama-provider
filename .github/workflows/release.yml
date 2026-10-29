@@ -63,15 +63,16 @@ jobs:
       - name: Build and package distributions
         if: steps.check.outputs.publish == 'true'
         run: |
-          dotnet build plugins/ShortDrama/ShortDrama.csproj -c Release -o artifacts/jellyfin -p:Version=${{ steps.check.outputs.version }}
-          dotnet build plugins/ShortDrama/ShortDrama.csproj -c Release.Emby -o artifacts/emby -p:Version=${{ steps.check.outputs.version }}
+          dotnet build plugins/emby-jellyfin/ShortDrama.csproj -c Release -o artifacts/jellyfin -p:Version=${{ steps.check.outputs.version }}
+          dotnet build plugins/emby-jellyfin/ShortDrama.csproj -c Release.Emby -o artifacts/emby -p:Version=${{ steps.check.outputs.version }}
           for platform in jellyfin emby; do
-            cp LICENSE plugins/ShortDrama/NOTICE "artifacts/$platform/"
+            cp LICENSE plugins/emby-jellyfin/NOTICE "artifacts/$platform/"
             (cd "artifacts/$platform" && zip "../short-drama-$platform.zip" ShortDrama.dll LICENSE NOTICE)
           done
           mkdir -p artifacts/plex
           sed "s|ghcr.io/rz467fzs7d/short-drama-provider:latest|ghcr.io/rz467fzs7d/short-drama-provider:${GITHUB_SHA::7}|" compose.yml > artifacts/plex/compose.yml
-          cp release/plex/README.md LICENSE artifacts/plex/
+          cp docs/plex.md artifacts/plex/README.md
+          cp LICENSE artifacts/plex/
           (cd artifacts/plex && zip ../short-drama-plex.zip compose.yml README.md LICENSE)
       - name: Wait for matching backend image
         if: steps.check.outputs.publish == 'true'
