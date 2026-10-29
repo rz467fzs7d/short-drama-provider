@@ -28,8 +28,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          last=$(gh release list --limit 100 --json tagName,publishedAt \
-            --jq '[.[] | select(.tagName | startswith("auto-"))] | sort_by(.publishedAt) | last // empty')
+          releases=$(gh release list --limit 100 --json tagName,publishedAt)
+          last=$(jq '[.[] | select((.tagName | startswith("auto-")) or (.tagName | test("^v[0-9]+\\.[0-9]+\\.[0-9]+$")))] | sort_by(.publishedAt) | last // empty' <<< "$releases")
           if [[ -n "$last" ]]; then
             tag=$(jq -r .tagName <<< "$last")
             previous=$(git rev-list -n 1 "$tag")
@@ -43,8 +43,10 @@ jobs:
               exit 0
             fi
           fi
+          version=$(jq -r '[.[] | .tagName | select(test("^v[0-9]+\\.[0-9]+\\.[0-9]+$")) | ltrimstr("v") | split(".") | map(tonumber)] | sort | last // [0,1,-1] | .[2] += 1 | map(tostring) | join(".")' <<< "$releases")
           echo 'publish=true' >> "$GITHUB_OUTPUT"
-          echo "tag=auto-$(date -u +%Y%m%d%H%M%S)-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          echo "tag=v$version" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-python@v5
         if: steps.check.outputs.publish == 'true'
         with:
@@ -61,8 +63,8 @@ jobs:
       - name: Build and package plugins
         if: steps.check.outputs.publish == 'true'
         run: |
-          dotnet build plugins/ShortDrama/ShortDrama.csproj -c Release -o artifacts/jellyfin
-          dotnet build plugins/ShortDrama/ShortDrama.csproj -c Release.Emby -o artifacts/emby
+          dotnet build plugins/ShortDrama/ShortDrama.csproj -c Release -o artifacts/jellyfin -p:Version=${{ steps.check.outputs.version }}
+          dotnet build plugins/ShortDrama/ShortDrama.csproj -c Release.Emby -o artifacts/emby -p:Version=${{ steps.check.outputs.version }}
           for platform in jellyfin emby; do
             cp LICENSE plugins/ShortDrama/NOTICE "artifacts/$platform/"
             (cd "artifacts/$platform" && zip "../short-drama-$platform.zip" ShortDrama.dll LICENSE NOTICE)
@@ -74,5 +76,5 @@ jobs:
           TAG: ${{ steps.check.outputs.tag }}
         run: |
           gh release create "$TAG" artifacts/short-drama-jellyfin.zip artifacts/short-drama-emby.zip \
-            --target "$GITHUB_SHA" --prerelease --title "Plugin prerelease $TAG" \
+            --target "$GITHUB_SHA" --prerelease --title "$TAG" \
             --notes 'Jellyfin 10.11 and Emby 4.9.1.80 plugin builds. Installation and runtime compatibility on actual servers have not yet been verified. The backend is published separately as a container image.'

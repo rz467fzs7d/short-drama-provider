@@ -132,7 +132,9 @@ episodes. The Plex-compatible API remains independent of these plugins.
 Plugin prereleases are available from GitHub Releases. An automated check
 publishes a new prerelease only when at least 14 days have elapsed since the
 previous automated release and the main branch has new commits. A manual
-release can be triggered earlier when the main branch has changed.
+release can be triggered earlier when the main branch has changed. Releases
+use semantic version tags such as `v0.1.0`; automated releases increment the
+patch version. GitHub marks these as prereleases until runtime validation.
 
 The plugin uses the backend's `/v1/search` and `/v1/metadata/{key}` JSON APIs;
 these endpoints are unauthenticated and intended only for a trusted network.
