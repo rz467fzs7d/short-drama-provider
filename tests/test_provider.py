@@ -153,6 +153,14 @@ class Protocol(unittest.TestCase):
         result = dispatch(self.cat, "GET", "/tv/library/metadata/hongguo-123", {}, {})
         self.assertEqual(result["MediaContainer"]["Metadata"][0]["title"], "Test")
 
+    def test_platform_neutral_search_and_detail(self):
+        result = dispatch(self.cat, "POST", "/v1/search", {}, {"title": "Test"})
+        self.assertEqual(result["items"][0]["key"], "hongguo-123")
+        self.assertEqual(result["items"][0]["title"], "Test")
+        result = dispatch(self.cat, "GET", "/v1/metadata/hongguo-123", {}, {})
+        self.assertEqual(result["item"]["title"], "Test")
+        self.assertEqual(result["item"]["source"], "hongguo")
+
     def test_feature_paths_relative_to_provider_uri(self):
         provider = dispatch(self.cat, "GET", "/tv", {}, {})["MediaProvider"]
         self.assertEqual(provider["Feature"][1]["key"], "/library/metadata/matches")

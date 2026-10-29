@@ -1,0 +1,22 @@
+<div id="ShortDramaConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button">
+  <div data-role="content"><div class="content-primary">
+    <form id="ShortDramaConfigForm">
+      <div class="inputContainer"><label class="inputLabel" for="ServerUrl">Metadata server URL</label>
+      <input is="emby-input" type="url" id="ServerUrl" required /></div>
+      <button is="emby-button" type="submit" class="raised button-submit block">Save</button>
+    </form>
+  </div></div>
+  <script>
+    const id = '83a6f764-ff80-4b35-99f6-742112efc544';
+    document.querySelector('#ShortDramaConfigPage').addEventListener('pageshow', async () => {
+      const config = await ApiClient.getPluginConfiguration(id);
+      document.querySelector('#ServerUrl').value = config.ServerUrl || '';
+    });
+    document.querySelector('#ShortDramaConfigForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const config = await ApiClient.getPluginConfiguration(id);
+      config.ServerUrl = document.querySelector('#ServerUrl').value.trim();
+      Dashboard.processPluginConfigurationUpdateResult(await ApiClient.updatePluginConfiguration(id, config));
+    });
+  </script>
+</div>

@@ -1,3 +1,6 @@
 /data/
 __pycache__/
 tests/__pycache__/
+plugins/**/bin/
+plugins/**/obj/
+artifacts/

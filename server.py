@@ -110,6 +110,25 @@ def children(item, base, season=None):
             for e in item.get("episodes", [])]
 
 
+def search_catalog(catalog, title, year):
+    records, errors = catalog.search(title)
+    candidates = sorted((r for r in records if not r.get("year") and
+                         match_score(title, r) >= 60),
+                        key=lambda r: match_score(title, r), reverse=True)[:8]
+    def enrich(record):
+        try:
+            detail, detail_errors = catalog.detail(catalog.key(record))
+            return detail, detail_errors
+        except SourceError as exc:
+            return record, [{"source": record["source"], "stage": "detail", "message": str(exc)}]
+    if candidates:
+        with ThreadPoolExecutor(max_workers=4) as pool:
+            for original, (detail, detail_errors) in zip(candidates, pool.map(enrich, candidates)):
+                original.update(detail)
+                errors.extend(detail_errors)
+    return sorted(records, key=lambda r: match_score(title, r, year), reverse=True), errors
+
+
 def dispatch(catalog, method, path, query, body):
     # Feature keys are relative to the registered provider URI. Keep /tv as a
     # supported entry point, including definitions already cached by PMS.
@@ -119,6 +138,16 @@ def dispatch(catalog, method, path, query, body):
         return descriptor()
     if method == "GET" and path == "/health":
         return {"status": "ok", "version": "0.1.0", "sources": [s.name for s in catalog.sources]}
+    if method == "POST" and path == "/v1/search":
+        title = body.get("title")
+        year = int(body["year"]) if body.get("year") else None
+        records, errors = search_catalog(catalog, title, year)
+        return {"items": [{**r, "key": catalog.key(r), "match_score": match_score(title, r, year)}
+                          for r in records], "source_errors": errors}
+    if method == "GET" and path.startswith("/v1/metadata/"):
+        key = path[len("/v1/metadata/"):]
+        item, errors = catalog.resolve(key)
+        return {"item": {**item, "key": key}, "source_errors": errors}
     if method == "POST" and path == PREFIX + "/matches":
         kind = int(body.get("type", 2))
         if kind not in (2, 3, 4):
@@ -133,29 +162,12 @@ def dispatch(catalog, method, path, query, body):
             return container([metadata(item, key, season, episode)], errors)
         title = body.get("title") if kind == 2 else body.get("parentTitle") if kind == 3 else body.get("grandparentTitle")
         logging.info("match type=%s title=%r manual=%s", kind, title, body.get("manual", 0))
-        records, errors = catalog.search(title)
         year = int(body["year"]) if body.get("year") else None
         manual = str(body.get("manual", "0")).lower() in ("1", "true")
-        # Detail pages can provide a release year absent from search cards.
-        # Limit enrichment to the strongest plausible candidates to bound traffic.
-        candidates = sorted((r for r in records if not r.get("year") and
-                             match_score(title, r) >= 60),
-                            key=lambda r: match_score(title, r), reverse=True)[:8]
-        def enrich(record):
-            try:
-                detail, detail_errors = catalog.detail(catalog.key(record))
-                return detail, detail_errors
-            except SourceError as exc:
-                return record, [{"source": record["source"], "stage": "detail", "message": str(exc)}]
-        if candidates:
-            with ThreadPoolExecutor(max_workers=4) as pool:
-                for original, (detail, detail_errors) in zip(candidates, pool.map(enrich, candidates)):
-                    original.update(detail)
-                    errors.extend(detail_errors)
-        ranked = sorted(records, key=lambda r: match_score(title, r, year), reverse=True)
+        ranked, errors = search_catalog(catalog, title, year)
         scores = [match_score(title, r, year) for r in ranked]
         selected = ranked if manual else ranked[:1]
-        logging.info("match candidates=%s errors=%s", len(records), [(e["source"], e["stage"]) for e in errors])
+        logging.info("match candidates=%s errors=%s", len(ranked), [(e["source"], e["stage"]) for e in errors])
         blocking_errors = [e for e in errors if e["stage"] == "search" and
                            (not selected or e["source"] == selected[0]["source"] or e["source"] == "douban")]
         if not manual and (not selected or scores[0] < 80 or

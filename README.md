@@ -112,6 +112,27 @@ python3 -W error::ResourceWarning -m unittest discover -s tests -v
 
 Protocol reference: https://github.com/plexinc/tmdb-example-provider
 
+## Jellyfin and Emby plugin source
+
+The shared plugin source is in `plugins/ShortDrama`. Build separate binaries:
+
+```sh
+dotnet build plugins/ShortDrama/ShortDrama.csproj -c Release -o artifacts/jellyfin
+dotnet build plugins/ShortDrama/ShortDrama.csproj -c Release.Emby -o artifacts/emby
+```
+
+The initial targets follow MetaTube's SDK references: Jellyfin 10.11 / .NET 9
+and Emby 4.9.1.80 / .NET 8. The resulting DLLs are platform-specific and must
+not be interchanged. The plugin must be configured with the backend URL and
+enabled in a test TV library. It supports series search, series metadata,
+poster, and available source episode metadata. It does not invent absent
+episodes. The Plex-compatible API remains independent of these plugins.
+
+The plugin uses the backend's `/v1/search` and `/v1/metadata/{key}` JSON APIs;
+these endpoints are unauthenticated and intended only for a trusted network.
+Plex integration is provided by this project's existing custom metadata
+provider HTTP API, not a separate legacy Plex bundle.
+
 ## License
 
 MIT. The license applies to this project's code, not upstream catalog content;
