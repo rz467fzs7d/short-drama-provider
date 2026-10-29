@@ -1,0 +1,22 @@
+services:
+  short-drama-provider:
+    build: .
+    image: homelab/short-drama-provider:0.1.0
+    container_name: short-drama-provider
+    network_mode: bridge
+    restart: unless-stopped
+    ports:
+      - "13230:3000"
+    volumes:
+      - ./data:/data
+    mem_limit: 256m
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
