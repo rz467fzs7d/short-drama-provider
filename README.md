@@ -1,12 +1,15 @@
-# Short-drama metadata for Plex
+# Short-drama metadata provider
 
-Independent, read-only custom Plex metadata provider. Candidates are ranked
-by matching evidence, not a fixed source preference. Cross-source fields fill
-gaps only when identity can be corroborated.
-The visible provider/agent name is `短剧元数据`, without source priority slogans.
-Search also includes DuanjuBaike and SceneTrace as independent candidates.
-Manual-match candidate names show `来源:ID`; the summary begins with the work
-title. Formal metadata titles do not include those UI-only labels.
+An independent, read-only short-drama metadata service for Plex, Jellyfin,
+and Emby. Plex connects directly to the service's custom provider API;
+Jellyfin and Emby use the platform-specific plugins in this repository.
+Candidates from multiple sources are ranked by matching evidence, not a
+fixed source preference. Cross-source fields fill gaps only when identity can
+be corroborated. Formal metadata titles do not include source labels.
+
+The visible Plex provider name is `短剧元数据`. Its manual-match candidates
+show `来源:ID`, with the work title at the start of the summary. Jellyfin and
+Emby search results show the source alongside the title.
 No paid API, MoviePilot dependency, video acquisition, file movement, Plex
 database edits, or third-party source patches.
 
@@ -123,7 +126,9 @@ dotnet build plugins/ShortDrama/ShortDrama.csproj -c Release.Emby -o artifacts/e
 
 The initial targets follow MetaTube's SDK references: Jellyfin 10.11 / .NET 9
 and Emby 4.9.1.80 / .NET 8. The resulting DLLs are platform-specific and must
-not be interchanged. The plugin must be configured with the backend URL and
+not be interchanged. Both builds have been verified; installation and runtime
+compatibility with a live Jellyfin or Emby server have not yet been verified.
+The plugin must be configured with the backend URL and
 enabled in a test TV library. It supports series search, series metadata,
 poster, and available source episode metadata. It does not invent absent
 episodes. The Plex-compatible API remains independent of these plugins.
