@@ -113,11 +113,12 @@ Protocol reference: https://github.com/plexinc/tmdb-example-provider
 
 ## Jellyfin and Emby plugin source
 
-The shared plugin source is in `plugins/emby-jellyfin`. Build separate binaries:
+Platform adapters live in `plugins/plex`, `plugins/emby`, and `plugins/jellyfin`.
+Emby and Jellyfin share code in `shared/emby-jellyfin`. Build their binaries:
 
 ```sh
-dotnet build plugins/emby-jellyfin/ShortDrama.csproj -c Release -o artifacts/jellyfin
-dotnet build plugins/emby-jellyfin/ShortDrama.csproj -c Release.Emby -o artifacts/emby
+dotnet build plugins/jellyfin/ShortDrama.csproj -c Release -o artifacts/jellyfin
+dotnet build plugins/emby/ShortDrama.csproj -c Release -o artifacts/emby
 ```
 
 The initial targets follow MetaTube's SDK references: Jellyfin 10.11 / .NET 9

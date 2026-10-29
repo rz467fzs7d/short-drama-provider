@@ -63,10 +63,10 @@ jobs:
       - name: Build and package distributions
         if: steps.check.outputs.publish == 'true'
         run: |
-          dotnet build plugins/emby-jellyfin/ShortDrama.csproj -c Release -o artifacts/jellyfin -p:Version=${{ steps.check.outputs.version }}
-          dotnet build plugins/emby-jellyfin/ShortDrama.csproj -c Release.Emby -o artifacts/emby -p:Version=${{ steps.check.outputs.version }}
+          dotnet build plugins/jellyfin/ShortDrama.csproj -c Release -o artifacts/jellyfin -p:Version=${{ steps.check.outputs.version }}
+          dotnet build plugins/emby/ShortDrama.csproj -c Release -o artifacts/emby -p:Version=${{ steps.check.outputs.version }}
           for platform in jellyfin emby; do
-            cp LICENSE plugins/emby-jellyfin/NOTICE "artifacts/$platform/"
+            cp LICENSE shared/emby-jellyfin/NOTICE "artifacts/$platform/"
             (cd "artifacts/$platform" && zip "../short-drama-$platform.zip" ShortDrama.dll LICENSE NOTICE)
           done
           mkdir -p artifacts/plex

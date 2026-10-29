@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TargetFramework>net9.0</TargetFramework>
+    <AssemblyName>ShortDrama</AssemblyName>
+    <Version>0.1.0.0</Version>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../shared/emby-jellyfin/*.cs" />
+    <EmbeddedResource Include="../../shared/emby-jellyfin/Configuration.html" LogicalName="ShortDrama.Configuration.html" />
+    <PackageReference Include="Jellyfin.Controller" Version="10.11.0" />
+    <PackageReference Include="Jellyfin.Model" Version="10.11.0" />
+  </ItemGroup>
+</Project>

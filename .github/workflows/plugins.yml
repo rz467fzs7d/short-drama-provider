@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "plugins/**"
+      - "shared/**"
       - ".github/workflows/plugins.yml"
   workflow_dispatch:
 
@@ -22,9 +23,9 @@ jobs:
             8.0.x
             9.0.x
       - name: Build Jellyfin plugin
-        run: dotnet build plugins/emby-jellyfin/ShortDrama.csproj -c Release -o artifacts/jellyfin
+        run: dotnet build plugins/jellyfin/ShortDrama.csproj -c Release -o artifacts/jellyfin
       - name: Build Emby plugin
-        run: dotnet build plugins/emby-jellyfin/ShortDrama.csproj -c Release.Emby -o artifacts/emby
+        run: dotnet build plugins/emby/ShortDrama.csproj -c Release -o artifacts/emby
       - name: Publish build artifacts
         uses: actions/upload-artifact@v4
         with:
